@@ -103,21 +103,23 @@ extension Email {
                 out.writeString("--\(boundary)\r\n")
                 out.writeString("Content-Type: text/html; charset=\"UTF-8\"\r\n\r\n")
                 out.writeString("\(body)\r\n")
-                out.writeString("--\(boundary)\r\n")
             } else {
                 out.writeString("--\(boundary)\r\n")
                 out.writeString("Content-Type: text/plain; charset=\"UTF-8\"\r\n\r\n")
                 out.writeString("\(body)\r\n\r\n")
-                out.writeString("--\(boundary)\r\n")
             }
 
             for attachment in attachments {
+                out.writeString("--\(boundary)\r\n")
                 out.writeString("Content-type: \(attachment.contentType)\r\n")
                 out.writeString("Content-Transfer-Encoding: base64\r\n")
                 out.writeString("Content-Disposition: attachment; filename=\"=?utf-8?B?\(attachment.name.base64String())?=\"\r\n\r\n")
                 out.writeString("\(attachment.data.base64EncodedString(options: [.lineLength76Characters]))\r\n")
-                out.writeString("--\(boundary)\r\n")
             }
+
+            // Schliessender MIME-Delimiter. Ohne ihn gilt die Nachricht als
+            // unvollstaendig; MIME-umschreibende Gateways koennen dann Teile verwerfen.
+            out.writeString("--\(boundary)--\r\n")
 
         } else {
             out.writeString(body)
